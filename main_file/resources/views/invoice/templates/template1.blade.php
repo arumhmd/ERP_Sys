@@ -365,11 +365,14 @@
                             <td>{{__('Due Amount')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
                         </tr>
+                        {{-- <tr>
+                            <td>{{__('Due Amount')}}:</td>                          
+                            <td>{{Utility::priceToWord($settings,$invoice->getDue())}}</td>
+                        </tr> --}}
                         <tr>
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr>
                         <tr>
                             <td></td>
                             <td>{{__('____________')}}</td>

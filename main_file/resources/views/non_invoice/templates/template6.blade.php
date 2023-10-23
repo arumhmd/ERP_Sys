@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <title>New York - invoice</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
         rel="stylesheet">
@@ -16,14 +16,13 @@
 
     <style type="text/css">
         :root {
-            --theme-color: {{$color}};
+            --theme-color: {{ $color }};
             --white: #ffffff;
             --black: #000000;
         }
 
         body {
             font-family: 'Lato', sans-serif;
-            -webkit-font-smoothing: antialiased;
         }
 
         p,
@@ -82,9 +81,9 @@
         .text-right {
             text-align: right;
         }
+
         .no-space tr td {
             padding: 0;
-            white-space: nowrap;
         }
 
         .vertical-align-top td {
@@ -164,19 +163,10 @@
         p:not(:last-of-type){
             margin-bottom: 15px;
         }
-        .invoice-footer h6{
-            font-size: 45px;
-            line-height: 1.2em;
-            font-weight: 400;
-            text-align: center;
-            font-style: italic;
-            color: var(--theme-color);
-        }
         .invoice-summary p{
             margin-bottom: 0;
         }
     </style>
-
     @if (env('SITE_RTL') == 'on')
         <link rel="stylesheet" href="{{ asset('css/bootstrap-rtl.css') }}">
     @endif
@@ -184,12 +174,31 @@
 
 <body>
 <div class="invoice-preview-main" id="boxes">
-    <div class="invoice-header">
-        <table class="vertical-align-top">
+    <div class="invoice-header"  style="border-top: 15px solid {{ $color }};">
+        <table>
             <tbody>
             <tr>
-                <td>
-                    <h3 style="text-transform: uppercase; font-size: 30px; font-weight: bold; margin-bottom: 10px; color: {{ $color }};">{{ __('INVOICE') }}</h3>
+                <td >
+                    <h3 style="text-transform: uppercase; font-size: 40px; font-weight: bold;">{{__('INVOICE')}}</h3>
+                </td>
+                <td class="text-right">
+                    <img class="invoice-logo"
+                         src="{{$img}}"
+                         alt="">
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="invoice-body">
+        <table class="vertical-align-top">
+            <tbody >
+            <tr>
+                @if (!empty($settings['company_name']) && !empty($settings['company_email']) && !empty($settings['company_address']))
+                <td style="font-size: 13px;">
+                    <strong style="margin-bottom: 10px; display:block;">{{__('From:')}}</strong>
                     <p>
                         @if($settings['company_name']){{$settings['company_name']}}@endif<br>
                         @if($settings['company_email']){{$settings['company_email']}}@endif<br>
@@ -203,23 +212,65 @@
                         @if(!empty($settings['tax_type']) && !empty($settings['vat_number'])){{$settings['tax_type'].' '. __('Number')}} : {{$settings['vat_number']}} <br>@endif
                     </p>
                 </td>
+                @endif
+                <td  style="font-size: 13px;">
+                    <strong style="margin-bottom: 10px; display:block;">{{__('Bill To:')}}</strong>
+                    <p>
+                        {{!empty($customer->billing_name)?$customer->billing_name:''}}<br>
+                        {{!empty($customer->billing_phone)?$customer->billing_phone:''}}<br>
+                        {{!empty($customer->billing_address)?$customer->billing_address:''}}<br>
+                        {{!empty($customer->billing_city)?$customer->billing_city:'' .', '}},
+                        {{!empty($customer->billing_state)?$customer->billing_state:'',', '}},
+                        {{!empty($customer->billing_country)?$customer->billing_country:''}}<br>
+                        {{!empty($customer->billing_zip)?$customer->billing_zip:''}}<br>
+                    </p>
+                </td>
+                @if($settings['shipping_display']=='on')
+                <td style="font-size: 13px;" class="text-right">
+                    <strong style="margin-bottom: 10px; display:block;">{{__('Ship To:')}}</strong>
+                    <p>
+                        {{!empty($customer->shipping_name)?$customer->shipping_name:''}}<br>
+                        {{!empty($customer->shipping_phone)?$customer->shipping_phone:''}}<br>
+                        {{!empty($customer->shipping_address)?$customer->shipping_address:''}}<br>
+                        {{!empty($customer->shipping_city)?$customer->shipping_city:'' . ', '}},
+                        {{!empty($customer->shipping_state)?$customer->shipping_state:'' .', '}},
+                        {{!empty($customer->shipping_country)?$customer->shipping_country:''}}<br>
+                        {{!empty($customer->shipping_zip)?$customer->shipping_zip:''}}<br>
+                    </p>
+                </td>
+                @endif
+            </tr>
+            <tr style="border-bottom:1px solid {{ $color }};">
 
                 <td>
-                    <img class="invoice-logo"
-                         src="{{$img}}"
-                         alt="" style="margin-bottom: 15px;">
+                    <p>
+                        @if (!empty($settings['registration_number'])){{ __('Registration Number') }} : {{ $settings['registration_number'] }} @endif<br>
+                            @if (!empty($settings['tax_type']) && !empty($settings['vat_number'])){{ $settings['tax_type'] . ' ' . __('Number') }} : {{ $settings['vat_number'] }} <br>@endif
 
-                    <table class="no-space">
-                        <tbody>
-                        <tr>
+                    </p>
+                </td>
+                <td colspan="2">
+                    <div class="view-qrcode" style="margin-top: 0;">
+                        {!! DNS2D::getBarcodeHTML(route('invoice.link.copy',\Crypt::encrypt($invoice->invoice_id)), "QRCODE",2,2) !!}
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <table >
+            <tbody >
+            <tr >
+                <td >
+                    <table class="no-space" >
+                        <tbody  >
+                        <tr >
                             <td>{{__('Number')}}:</td>
                             <td class="text-right">{{Utility::invoiceNumberFormat($settings,$invoice->invoice_id)}}</td>
                         </tr>
                         <tr>
-                            <td>{{__('Issue Date')}}:</td style="color: {{ $color }};">
+                            <td>{{__('Issue Date')}}:</td>
                             <td class="text-right">{{Utility::dateFormat($settings,$invoice->issue_date)}}</td>
                         </tr>
-
                         <tr>
                             <td><b>{{__('Due Date:')}}</b></td>
                             <td class="text-right">{{Utility::dateFormat($settings,$invoice->due_date)}}</td>
@@ -232,66 +283,24 @@
                                 </tr>
                             @endforeach
                         @endif
-                        <tr>
-                            <td colspan="2">
-                                <div class="view-qrcode">
-                                    {!! DNS2D::getBarcodeHTML(route('invoice.link.copy',\Crypt::encrypt($invoice->invoice_id)), "QRCODE",2,2) !!}
-                                </div>
-                            </td>
-                        </tr>
                         </tbody>
                     </table>
                 </td>
             </tr>
             </tbody>
         </table>
-
-    </div>
-    <div class="invoice-body">
-        <table>
-            <tbody>
-            <tr>
-                <td>
-                    <strong style="margin-bottom: 10px; display:block;">{{__('Bill To')}}:</strong>
-                    <p>
-                        {{!empty($customer->billing_name)?$customer->billing_name:''}}<br>
-                        {{!empty($customer->billing_phone)?$customer->billing_phone:''}}<br>
-                        {{!empty($customer->billing_address)?$customer->billing_address:''}}<br>
-                        {{!empty($customer->billing_city)?$customer->billing_city:'' .', '}},
-                        {{!empty($customer->billing_state)?$customer->billing_state:'',', '}},
-                        {{!empty($customer->billing_country)?$customer->billing_country:''}}<br>
-                        {{!empty($customer->billing_zip)?$customer->billing_zip:''}}<br>
-                    </p>
-                </td>
-                @if($settings['shipping_display']=='on')
-                    <td class="text-right">
-                        <strong style="margin-bottom: 10px; display:block;">{{__('Ship To')}}:</strong>
-                        <p>
-                            {{!empty($customer->shipping_name)?$customer->shipping_name:''}}<br>
-                            {{!empty($customer->shipping_phone)?$customer->shipping_phone:''}}<br>
-                            {{!empty($customer->shipping_address)?$customer->shipping_address:''}}<br>
-                            {{!empty($customer->shipping_city)?$customer->shipping_city:'' . ', '}},
-                            {{!empty($customer->shipping_state)?$customer->shipping_state:'' .', '}},
-                            {{!empty($customer->shipping_country)?$customer->shipping_country:''}}<br>
-                            {{!empty($customer->shipping_zip)?$customer->shipping_zip:''}}<br>
-                        </p>
-                    </td>
-                @endif
-            </tr>
-            </tbody>
-        </table>
-        <table class=" invoice-summary" style="margin-top: 30px;">
-            <thead style="background: {{$color}};color:{{$font_color}}">
-            <tr>
+        <table class="add-border invoice-summary" style="margin-top: 30px;">
+            <thead style="background: {{ $color }};color:{{ $font_color }}">
+            <tr style="border-bottom:1px solid {{ $color }};" >
                 <th>{{__('Item')}}</th>
                 <th>{{__('Quantity')}}</th>
                 <th>{{__('Rate')}}</th>
                 <th>{{__('Discount')}}</th>
                 <th>{{__('Tax')}} (%)</th>
-                <th>{{__('Price')}} <small>{{__('after tax & discount')}}</small></th>
+                <th>{{__('Price')}} <small>after tax & discount</small></th>
             </tr>
-            </thead>
-            <tbody style="border-bottom:1px solid {{ $color }};">
+            </thead >
+            <tbody style="border-bottom:1px solid {{ $color }};" >
             @if(isset($invoice->itemData) && count($invoice->itemData) > 0)
                 @foreach($invoice->itemData as $key => $item)
                     <tr >
@@ -299,7 +308,7 @@
                         <td>{{$item->quantity}}</td>
                         <td>{{Utility::priceFormat($settings,$item->price)}}</td>
                         <td>{{($item->discount!=0)?Utility::priceFormat($settings,$item->discount):'-'}}</td>
-                        <td>
+                        <td >
                             @if(!empty($item->itemTax))
                                 @php
                                     $itemtax = 0;
@@ -314,14 +323,15 @@
                                 <span>-</span>
                             @endif
                         </td>
-                        <td>{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
+                        <td >{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
                     @if(!empty($item->description))
-                        <tr class="itm-description " style="border-bottom:1px solid {{ $color }};">
-                            <td colspan="6">{{$item->description}}</td>
+                        <tr class="border-0 itm-description">
+                        <td colspan="6" style="border-bottom:1px solid {{ $color }};">{{$item->description}}</td>
                         </tr>
                         @endif
                         </tr>
                         @endforeach
+
                     @else
                     @endif
             </tbody>
@@ -334,12 +344,12 @@
                 <td>{{Utility::priceFormat($settings,$invoice->totalTaxPrice) }}</td>
                 <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
             </tr>
-            <tr style="border-bottom:1px solid {{ $color }};">
+            <tr>
                 <td colspan="4"></td>
                 <td colspan="2" class="sub-total">
                     <table class="total-table">
                         <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Subtotal')}}:</td>
+                            <td >{{__('Subtotal')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
                         </tr>
                         @if($invoice->getTotalDiscount())
@@ -368,16 +378,11 @@
                             <td>{{__('Credit Note')}}:</td>
                             <td>{{Utility::priceFormat($settings,($invoice->invoiceTotalCreditNote()))}}</td>
                         </tr>
-                        <tr >
+                        <tr style="border-bottom:1px solid {{ $color }};">
                             <td>{{__('Due Amount')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
+                        </tr>
 
-                        </tr>
-                        <tr >
-                            <td>{{__('Due Amount')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
-                            
-                        </tr>
                     </table>
                 </td>
             </tr>
@@ -394,5 +399,7 @@
 @if(!isset($preview))
     @include('invoice.script');
 @endif
+
 </body>
+
 </html>

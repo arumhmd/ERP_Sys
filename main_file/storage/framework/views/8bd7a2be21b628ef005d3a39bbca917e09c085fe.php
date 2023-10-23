@@ -1,8 +1,8 @@
 <?php
-    $settings_data = \App\Models\Utility::settingsById($invoice->created_by);
+    $settings_data = \App\Models\Utility::settingsById($proposal->created_by);
 
 ?>
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en" dir="<?php echo e($settings_data['SITE_RTL'] == 'on'?'rtl':''); ?>">
 
 <head>
@@ -57,7 +57,7 @@
             font-size: 12px;
         }
 
-        .invoice-preview-main {
+        .proposal-preview-main {
             max-width: 700px;
             width: 100%;
             margin: 0 auto;
@@ -65,12 +65,12 @@
             box-shadow: 0 0 10px #ddd;
         }
 
-        .invoice-logo {
+        .proposal-logo {
             max-width: 200px;
             width: 100%;
         }
 
-        .invoice-header table td {
+        .proposal-header table td {
             padding: 15px 30px;
         }
 
@@ -82,6 +82,7 @@
             padding: 0;
             white-space: nowrap;
         }
+
 
         .vertical-align-top td {
             vertical-align: top;
@@ -103,7 +104,7 @@
             height: 100%;
         }
 
-        .invoice-body {
+        .proposal-body {
             padding: 30px 25px 0;
         }
 
@@ -134,8 +135,8 @@
             border: none !important;
         }
 
-        .invoice-summary td,
-        .invoice-summary th {
+        .proposal-summary td,
+        .proposal-summary th {
             font-size: 13px;
             font-weight: 600;
         }
@@ -144,7 +145,7 @@
             width: 146px;
         }
 
-        .invoice-footer {
+        .proposal-footer {
             padding: 15px 20px;
         }
 
@@ -170,16 +171,16 @@
 </head>
 
 <body class="">
-<div class="invoice-preview-main"  id="boxes">
-    <div class="invoice-header" style="background: <?php echo e($color); ?>;color:<?php echo e($font_color); ?>">
+<div class="proposal-preview-main"  id="boxes">
+    <div class="proposal-header" style="background: <?php echo e($color); ?>;color:<?php echo e($font_color); ?>">
         <table>
             <tbody>
             <tr>
                 <td>
-                    <img class="invoice-logo" src="<?php echo e($img); ?>" alt="">
+                    <img class="proposal-logo" src="<?php echo e($img); ?>" alt="">
                 </td>
                 <td class="text-right">
-                    <h3 style="text-transform: uppercase; font-size: 40px; font-weight: bold;"><?php echo e(__('INVOICE')); ?></h3>
+                    <h3 style="text-transform: uppercase; font-size: 40px; font-weight: bold;"><?php echo e(__('PROPOSAL')); ?></h3>
                 </td>
             </tr>
             </tbody>
@@ -195,7 +196,7 @@
                         <?php if($settings['company_address']): ?><?php echo e($settings['company_address']); ?><?php endif; ?>
                         <?php if($settings['company_city']): ?> <br> <?php echo e($settings['company_city']); ?>, <?php endif; ?>
                         <?php if($settings['company_state']): ?><?php echo e($settings['company_state']); ?><?php endif; ?>
-                            <?php if($settings['company_country']): ?> <br><?php echo e($settings['company_country']); ?><?php endif; ?>
+                        <?php if($settings['company_country']): ?> <br><?php echo e($settings['company_country']); ?><?php endif; ?>
                         <?php if($settings['company_zipcode']): ?> - <?php echo e($settings['company_zipcode']); ?><?php endif; ?><br>
                         <?php if(!empty($settings['registration_number'])): ?><?php echo e(__('Registration Number')); ?> : <?php echo e($settings['registration_number']); ?> <?php endif; ?>
                         <?php if(!empty($settings['tax_type']) && !empty($settings['vat_number'])): ?><?php echo e($settings['tax_type'].' '. __('Number')); ?> : <?php echo e($settings['vat_number']); ?> <br><?php endif; ?>
@@ -206,29 +207,26 @@
                         <tbody>
                         <tr>
                             <td><?php echo e(__('Number')); ?>:</td>
-                            <td class="text-right"><?php echo e(Utility::invoiceNumberFormat($settings,$invoice->invoice_id)); ?></td>
+                            <td class="text-right"><?php echo e(Utility::proposalNumberFormat($settings,$proposal->proposal_id)); ?></td>
                         </tr>
                         <tr>
                             <td><?php echo e(__('Issue Date')); ?>:</td>
-                            <td class="text-right"><?php echo e(Utility::dateFormat($settings,$invoice->issue_date)); ?></td>
+                            <td class="text-right"><?php echo e(Utility::dateFormat($settings,$proposal->issue_date)); ?></td>
                         </tr>
 
-                        <tr>
-                            <td><b><?php echo e(__('Due Date:')); ?></b></td>
-                            <td class="text-right"><?php echo e(Utility::dateFormat($settings,$invoice->due_date)); ?></td>
-                        </tr>
-                        <?php if(!empty($customFields) && count($invoice->customField)>0): ?>
+
+                        <?php if(!empty($customFields) && count($proposal->customField)>0): ?>
                             <?php $__currentLoopData = $customFields; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td><?php echo e($field->name); ?> :</td>
-                                    <td> <?php echo e(!empty($invoice->customField)?$invoice->customField[$field->id]:'-'); ?></td>
+                                    <td> <?php echo e(!empty($proposal->customField)?$proposal->customField[$field->id]:'-'); ?></td>
                                 </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <?php endif; ?>
                         <tr>
                             <td colspan="2">
                                 <div class="view-qrcode">
-                                    <?php echo DNS2D::getBarcodeHTML(route('invoice.link.copy',\Crypt::encrypt($invoice->invoice_id)), "QRCODE",2,2); ?>
+                                    <?php echo DNS2D::getBarcodeHTML(route('proposal.link.copy',\Crypt::encrypt($proposal->proposal_id)), "QRCODE",2,2); ?>
 
                                 </div>
                             </td>
@@ -240,7 +238,7 @@
             </tbody>
         </table>
     </div>
-    <div class="invoice-body">
+    <div class="proposal-body">
         <table>
             <tbody>
             <tr>
@@ -273,7 +271,7 @@
             </tr>
             </tbody>
         </table>
-        <table class="add-border invoice-summary" style="margin-top: 30px;">
+        <table class="add-border proposal-summary" style="margin-top: 30px;">
             <thead style="background: <?php echo e($color); ?>;color:<?php echo e($font_color); ?>">
             <tr>
                 <th><?php echo e(__('Item')); ?></th>
@@ -285,48 +283,48 @@
             </tr>
             </thead>
             <tbody>
-            <?php if(isset($invoice->itemData) && count($invoice->itemData) > 0): ?>
-                <?php $__currentLoopData = $invoice->itemData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <tr>
-                    <td><?php echo e($item->name); ?></td>
-                    <td><?php echo e($item->quantity); ?></td>
-                    <td><?php echo e(Utility::priceFormat($settings,$item->price)); ?></td>
-                    <td><?php echo e(($item->discount!=0)?Utility::priceFormat($settings,$item->discount):'-'); ?></td>
-                    <td>
-                        <?php if(!empty($item->itemTax)): ?>
-                            <?php
-                                $itemtax = 0;
-                            ?>
-                            <?php $__currentLoopData = $item->itemTax; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxes): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(isset($proposal->itemData) && count($proposal->itemData) > 0): ?>
+                <?php $__currentLoopData = $proposal->itemData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr>
+                        <td><?php echo e($item->name); ?></td>
+                        <td><?php echo e($item->quantity); ?></td>
+                        <td><?php echo e(Utility::priceFormat($settings,$item->price)); ?></td>
+                        <td><?php echo e(($item->discount!=0)?Utility::priceFormat($settings,$item->discount):'-'); ?></td>
+                        <td>
+                            <?php if(!empty($item->itemTax)): ?>
                                 <?php
-                                    $itemtax += $taxes['tax_price'];
+                                    $itemtax = 0;
                                 ?>
-                                <p><?php echo e($taxes['name']); ?> (<?php echo e($taxes['rate']); ?>) <?php echo e($taxes['price']); ?></p>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php else: ?>
-                            <span>-</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?php echo e(Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)); ?></td>
+                                <?php $__currentLoopData = $item->itemTax; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxes): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
+                                        $itemtax += $taxes['tax_price'];
+                                    ?>
+                                    <p><?php echo e($taxes['name']); ?> (<?php echo e($taxes['rate']); ?>) <?php echo e($taxes['price']); ?></p>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php else: ?>
+                                <span>-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo e(Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)); ?></td>
                     <?php if(!empty($item->description)): ?>
                         <tr class="border-0 itm-description ">
                             <td colspan="6"><?php echo e($item->description); ?></td>
                         </tr>
+                        <?php endif; ?>
+                        </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php else: ?>
                     <?php endif; ?>
-                </tr>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <?php else: ?>
-            <?php endif; ?>
 
             </tbody>
             <tfoot>
             <tr>
                 <td><?php echo e(__('Total')); ?></td>
-                <td><?php echo e($invoice->totalQuantity); ?></td>
-                <td><?php echo e(Utility::priceFormat($settings,$invoice->totalRate)); ?></td>
-                <td><?php echo e(Utility::priceFormat($settings,$invoice->totalDiscount)); ?></td>
-                <td><?php echo e(Utility::priceFormat($settings,$invoice->totalTaxPrice)); ?></td>
-                <td><?php echo e(Utility::priceFormat($settings,$invoice->getSubTotal())); ?></td>
+                <td><?php echo e($proposal->totalQuantity); ?></td>
+                <td><?php echo e(Utility::priceFormat($settings,$proposal->totalRate)); ?></td>
+                <td><?php echo e(Utility::priceFormat($settings,$proposal->totalDiscount)); ?></td>
+                <td><?php echo e(Utility::priceFormat($settings,$proposal->totalTaxPrice)); ?></td>
+                <td><?php echo e(Utility::priceFormat($settings,$proposal->getSubTotal())); ?></td>
             </tr>
             <tr>
                 <td colspan="4"></td>
@@ -334,57 +332,34 @@
                     <table class="total-table">
                         <tr>
                             <td><?php echo e(__('Subtotal')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,$invoice->getSubTotal())); ?></td>
+                            <td><?php echo e(Utility::priceFormat($settings,$proposal->getSubTotal())); ?></td>
                         </tr>
-                        <?php if($invoice->getTotalDiscount()): ?>
-                        <tr>
-                            <td><?php echo e(__('Discount')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,$invoice->getTotalDiscount())); ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if(!empty($invoice->taxesData)): ?>
-                            <?php $__currentLoopData = $invoice->taxesData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxName => $taxPrice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($proposal->getTotalDiscount()): ?>
                             <tr>
-                                <td><?php echo e($taxName); ?> :</td>
-                                <td><?php echo e(Utility::priceFormat($settings,$taxPrice)); ?></td>
+                                <td><?php echo e(__('Discount')); ?>:</td>
+                                <td><?php echo e(Utility::priceFormat($settings,$proposal->getTotalDiscount())); ?></td>
                             </tr>
+                        <?php endif; ?>
+                        <?php if(!empty($proposal->taxesData)): ?>
+                            <?php $__currentLoopData = $proposal->taxesData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxName => $taxPrice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <tr>
+                                    <td><?php echo e($taxName); ?> :</td>
+                                    <td><?php echo e(Utility::priceFormat($settings,$taxPrice)); ?></td>
+                                </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <?php endif; ?>
                         <tr>
                             <td><?php echo e(__('Total')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,$invoice->getSubTotal()-$invoice->getTotalDiscount()+$invoice->getTotalTax())); ?></td>
+                            <td><?php echo e(Utility::priceFormat($settings,$proposal->getSubTotal()-$proposal->getTotalDiscount()+$proposal->getTotalTax())); ?></td>
                         </tr>
-                        <tr>
-                            <td><?php echo e(__('Paid')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,($invoice->getTotal()-$invoice->getDue())-($invoice->invoiceTotalCreditNote()))); ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo e(__('Credit Note')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,($invoice->invoiceTotalCreditNote()))); ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo e(__('Due Amount')); ?>:</td>
-                            <td><?php echo e(Utility::priceFormat($settings,$invoice->getDue())); ?></td>
-                        </tr>
-                        
-                        <tr>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><?php echo e(__('____________')); ?></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><?php echo e(__('Signature')); ?></td>
-                        </tr>
+
+
                     </table>
                 </td>
             </tr>
             </tfoot>
         </table>
-        <div class="invoice-footer">
+        <div class="proposal-footer">
             <p>
                 <?php echo e($settings['footer_title']); ?> <br>
                 <?php echo e($settings['footer_notes']); ?>
@@ -395,10 +370,10 @@
 
 </div>
 <?php if(!isset($preview)): ?>
-    <?php echo $__env->make('invoice.script', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;
+    <?php echo $__env->make('proposal.script', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>;
 <?php endif; ?>
 
 </body>
 
 </html>
-<?php /**PATH C:\xampp\htdocs\erp-saas\main_file\resources\views/invoice/templates/template1.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\erp-saas\main_file\resources\views/proposal/templates/template1.blade.php ENDPATH**/ ?>

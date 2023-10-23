@@ -501,8 +501,20 @@
                                         <li class="dash-item dash-hasmenu <?php echo e((Request::segment(1) == 'invoice' || Request::segment(1) == 'revenue' || Request::segment(1) == 'credit-note')? 'active dash-trigger' :''); ?>">
                                             <a class="dash-link" href="#"><?php echo e(__('Income')); ?><span class="dash-arrow"><i data-feather="chevron-right"></i></span></a>
                                             <ul class="dash-submenu">
+                                                <?php if( Gate::check('manage invoice') ||  Gate::check('manage revenue') ||  Gate::check('manage credit note')): ?>
+                                        <li class="dash-item dash-hasmenu <?php echo e((Request::segment(1) == 'invoice' || Request::segment(1) == 'revenue' || Request::segment(1) == 'credit-note')? 'active dash-trigger' :''); ?>">
+                                            <a class="dash-link" href="#"><?php echo e(__('Invoice')); ?><span class="dash-arrow"><i data-feather="chevron-right"></i></span></a>
+                                            <ul class="dash-submenu">
                                                 <li class="dash-item <?php echo e((Request::route()->getName() == 'invoice.index' || Request::route()->getName() == 'invoice.create' || Request::route()->getName() == 'invoice.edit' || Request::route()->getName() == 'invoice.show') ? ' active' : ''); ?>">
-                                                    <a class="dash-link" href="<?php echo e(route('invoice.index')); ?>"><?php echo e(__('Invoice')); ?></a>
+                                                    <a class="dash-link" href="<?php echo e(route('invoice.index')); ?>"><?php echo e(__('Texable Invoice')); ?></a>
+                                                </li>
+                                                <li class="dash-item <?php echo e((Request::route()->getName() == 'revenue.index' || Request::route()->getName() == 'revenue.create' || Request::route()->getName() == 'revenue.edit') ? ' active' : ''); ?>">
+                                                    <a class="dash-link" href="<?php echo e(route('revenue.index')); ?>"><?php echo e(__('Non-Texable Invoice')); ?></a>
+                                                </li>
+                                               
+                                            </ul>
+                                        </li>
+                                    <?php endif; ?>
                                                 </li>
                                                 <li class="dash-item <?php echo e((Request::route()->getName() == 'revenue.index' || Request::route()->getName() == 'revenue.create' || Request::route()->getName() == 'revenue.edit') ? ' active' : ''); ?>">
                                                     <a class="dash-link" href="<?php echo e(route('revenue.index')); ?>"><?php echo e(__('Revenue')); ?></a>

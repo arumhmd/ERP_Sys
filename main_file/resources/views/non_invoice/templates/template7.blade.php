@@ -1,5 +1,5 @@
 @php
-    $settings_data = \App\Models\Utility::settingsById($proposal->created_by);
+    $settings_data = \App\Models\Utility::settingsById($invoice->created_by);
 
 @endphp
     <!DOCTYPE html>
@@ -8,7 +8,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link
         href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
         rel="stylesheet">
@@ -23,7 +22,6 @@
 
         body {
             font-family: 'Lato', sans-serif;
-            -webkit-font-smoothing: antialiased;
         }
 
         p,
@@ -82,9 +80,9 @@
         .text-right {
             text-align: right;
         }
+
         .no-space tr td {
             padding: 0;
-            white-space: nowrap;
         }
 
         .vertical-align-top td {
@@ -144,7 +142,7 @@
         }
 
         .invoice-footer {
-            padding: 15px 20px;
+            padding: 15px 0;
         }
 
         .itm-description td {
@@ -164,14 +162,6 @@
         p:not(:last-of-type){
             margin-bottom: 15px;
         }
-        .invoice-footer h6{
-            font-size: 45px;
-            line-height: 1.2em;
-            font-weight: 400;
-            text-align: center;
-            font-style: italic;
-            color: var(--theme-color);
-        }
         .invoice-summary p{
             margin-bottom: 0;
         }
@@ -184,12 +174,25 @@
 
 <body>
 <div class="invoice-preview-main" id="boxes">
-    <div class="invoice-header">
+    <div class="invoice-header" style="border-top: 15px solid var(--theme-color); background: #f8f8f8;">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <img class="invoice-logo"
+                         src="{{$img}}"
+                         alt="">
+                </td>
+                <td class="text-right">
+                    <h3 style="text-transform: uppercase; font-size: 40px; font-weight: bold;">{{__('INVOICE')}}</h3>
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <table class="vertical-align-top">
             <tbody>
             <tr>
                 <td>
-                    <h3 style="text-transform: uppercase; font-size: 30px; font-weight: bold; margin-bottom: 10px; color: {{ $color }};">{{ __('INVOICE') }}</h3>
                     <p>
                         @if($settings['company_name']){{$settings['company_name']}}@endif<br>
                         @if($settings['company_email']){{$settings['company_email']}}@endif<br>
@@ -203,23 +206,17 @@
                         @if(!empty($settings['tax_type']) && !empty($settings['vat_number'])){{$settings['tax_type'].' '. __('Number')}} : {{$settings['vat_number']}} <br>@endif
                     </p>
                 </td>
-
                 <td>
-                    <img class="invoice-logo"
-                         src="{{$img}}"
-                         alt="" style="margin-bottom: 15px;">
-
-                    <table class="no-space">
+                    <table class="no-space"  style="width: 45%;margin-left: auto;">
                         <tbody>
-                        <tr>
+                        <tr >
                             <td>{{__('Number')}}:</td>
                             <td class="text-right">{{Utility::invoiceNumberFormat($settings,$invoice->invoice_id)}}</td>
                         </tr>
                         <tr>
-                            <td>{{__('Issue Date')}}:</td style="color: {{ $color }};">
+                            <td>{{__('Issue Date')}}:</td>
                             <td class="text-right">{{Utility::dateFormat($settings,$invoice->issue_date)}}</td>
                         </tr>
-
                         <tr>
                             <td><b>{{__('Due Date:')}}</b></td>
                             <td class="text-right">{{Utility::dateFormat($settings,$invoice->due_date)}}</td>
@@ -247,10 +244,11 @@
         </table>
 
     </div>
-    <div class="invoice-body">
-        <table>
+    <div class="invoice-body" style="border-bottom: 15px solid var(--theme-color);">
+        <table class="vertical-align-top">
             <tbody>
             <tr>
+
                 <td>
                     <strong style="margin-bottom: 10px; display:block;">{{__('Bill To')}}:</strong>
                     <p>
@@ -278,20 +276,22 @@
                     </td>
                 @endif
             </tr>
+
             </tbody>
         </table>
-        <table class=" invoice-summary" style="margin-top: 30px;">
-            <thead style="background: {{$color}};color:{{$font_color}}">
+
+        <table class="add-border invoice-summary" style="margin-top: 30px;">
+            <thead style="background-color: var(--theme-color);color: var(--white);">
             <tr>
                 <th>{{__('Item')}}</th>
                 <th>{{__('Quantity')}}</th>
                 <th>{{__('Rate')}}</th>
                 <th>{{__('Discount')}}</th>
                 <th>{{__('Tax')}} (%)</th>
-                <th>{{__('Price')}} <small>{{__('after tax & discount')}}</small></th>
+                <th>{{__('Price')}} <small>after tax & discount</small></th>
             </tr>
             </thead>
-            <tbody style="border-bottom:1px solid {{ $color }};">
+            <tbody>
             @if(isset($invoice->itemData) && count($invoice->itemData) > 0)
                 @foreach($invoice->itemData as $key => $item)
                     <tr >
@@ -299,7 +299,7 @@
                         <td>{{$item->quantity}}</td>
                         <td>{{Utility::priceFormat($settings,$item->price)}}</td>
                         <td>{{($item->discount!=0)?Utility::priceFormat($settings,$item->discount):'-'}}</td>
-                        <td>
+                        <td >
                             @if(!empty($item->itemTax))
                                 @php
                                     $itemtax = 0;
@@ -314,19 +314,20 @@
                                 <span>-</span>
                             @endif
                         </td>
-                        <td>{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
+                        <td >{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
                     @if(!empty($item->description))
-                        <tr class="itm-description " style="border-bottom:1px solid {{ $color }};">
-                            <td colspan="6">{{$item->description}}</td>
+                        <tr class="border-0 itm-description">
+                            <td colspan="6" style="border-bottom:1px solid {{ $color }};">{{$item->description}}</td>
                         </tr>
                         @endif
                         </tr>
                         @endforeach
+
                     @else
                     @endif
             </tbody>
-            <tfoot >
-            <tr style="border-bottom:1px solid {{ $color }};">
+            <tfoot>
+                <tr>
                 <td>{{__('Total')}}</td>
                 <td>{{$invoice->totalQuantity}}</td>
                 <td>{{Utility::priceFormat($settings,$invoice->totalRate)}}</td>
@@ -334,53 +335,45 @@
                 <td>{{Utility::priceFormat($settings,$invoice->totalTaxPrice) }}</td>
                 <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
             </tr>
-            <tr style="border-bottom:1px solid {{ $color }};">
-                <td colspan="4"></td>
-                <td colspan="2" class="sub-total">
-                    <table class="total-table">
-                        <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Subtotal')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
-                        </tr>
-                        @if($invoice->getTotalDiscount())
-                            <tr style="border-bottom:1px solid {{ $color }};">
+                <tr>
+                    <td colspan="4"></td>
+                    <td colspan="2" class="sub-total">
+                        <table class="total-table">
+                            <tr>
+                                <td >{{__('Subtotal')}}:</td>
+                                <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
+                            </tr>
+                            <tr>
                                 <td>{{__('Discount')}}:</td>
                                 <td>{{Utility::priceFormat($settings,$invoice->getTotalDiscount())}}</td>
                             </tr>
-                        @endif
-                        @if(!empty($invoice->taxesData))
-                            @foreach($invoice->taxesData as $taxName => $taxPrice)
-                                <tr style="border-bottom:1px solid {{ $color }};">
-                                    <td>{{$taxName}} :</td>
-                                    <td>{{ Utility::priceFormat($settings,$taxPrice)  }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Total')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getSubTotal()-$invoice->getTotalDiscount()+$invoice->getTotalTax())}}</td>
-                        </tr>
-                        <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Paid')}}:</td>
-                            <td>{{Utility::priceFormat($settings,($invoice->getTotal()-$invoice->getDue())-($invoice->invoiceTotalCreditNote()))}}</td>
-                        </tr>
-                        <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Credit Note')}}:</td>
-                            <td>{{Utility::priceFormat($settings,($invoice->invoiceTotalCreditNote()))}}</td>
-                        </tr>
-                        <tr >
-                            <td>{{__('Due Amount')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
-
-                        </tr>
-                        <tr >
-                            <td>{{__('Due Amount')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
-                            
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                            @if(!empty($invoice->taxesData))
+                                @foreach($invoice->taxesData as $taxName => $taxPrice)
+                                    <tr >
+                                        <td>{{$taxName}} :</td>
+                                        <td>{{ Utility::priceFormat($settings,$taxPrice)  }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                            <tr>
+                                <td>{{__('Total')}}:</td>
+                                <td>{{Utility::priceFormat($settings,$invoice->getSubTotal()-$invoice->getTotalDiscount()+$invoice->getTotalTax())}}</td>
+                            </tr>
+                            <tr>
+                                <td>{{__('Paid')}}:</td>
+                                <td>{{Utility::priceFormat($settings,($invoice->getTotal()-$invoice->getDue())-($invoice->invoiceTotalCreditNote()))}}</td>
+                            </tr>
+                            <tr>
+                                <td>{{__('Credit Note')}}:</td>
+                                <td>{{Utility::priceFormat($settings,($invoice->invoiceTotalCreditNote()))}}</td>
+                            </tr>
+                            <tr>
+                                <td>{{__('Due Amount')}}:</td>
+                                <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
             </tfoot>
         </table>
         <div class="invoice-footer">
@@ -391,8 +384,11 @@
         </div>
     </div>
 </div>
+
 @if(!isset($preview))
     @include('invoice.script');
 @endif
+
 </body>
+
 </html>

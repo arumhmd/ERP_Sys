@@ -1,14 +1,13 @@
 @php
-    $settings_data = \App\Models\Utility::settingsById($proposal->created_by);
+    $settings_data = \App\Models\Utility::settingsById($invoice->created_by);
 
 @endphp
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="{{$settings_data['SITE_RTL'] == 'on'?'rtl':''}}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link
         href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
         rel="stylesheet">
@@ -23,7 +22,6 @@
 
         body {
             font-family: 'Lato', sans-serif;
-            -webkit-font-smoothing: antialiased;
         }
 
         p,
@@ -164,14 +162,6 @@
         p:not(:last-of-type){
             margin-bottom: 15px;
         }
-        .invoice-footer h6{
-            font-size: 45px;
-            line-height: 1.2em;
-            font-weight: 400;
-            text-align: center;
-            font-style: italic;
-            color: var(--theme-color);
-        }
         .invoice-summary p{
             margin-bottom: 0;
         }
@@ -188,8 +178,40 @@
         <table class="vertical-align-top">
             <tbody>
             <tr>
-                <td>
-                    <h3 style="text-transform: uppercase; font-size: 30px; font-weight: bold; margin-bottom: 10px; color: {{ $color }};">{{ __('INVOICE') }}</h3>
+                <td >
+                    <h3 style=" display: block; text-transform: uppercase; font-size: 30px; font-weight: bold; padding: 15px; background: {{ $color }};color:{{ $font_color }} ">{{__('INVOICE')}}</h3>
+                    <div class="view-qrcode" style="margin-left: 0; margin-bottom: 15px; ">
+                        {!! DNS2D::getBarcodeHTML(route('invoice.link.copy',\Crypt::encrypt($invoice->invoice_id)), "QRCODE",2,2) !!}
+                    </div>
+                    <table class="no-space">
+                        <tbody>
+                        <tr >
+                            <td>{{__('Number')}}:</td>
+                            <td class="text-right">{{Utility::invoiceNumberFormat($settings,$invoice->invoice_id)}}</td>
+                        </tr>
+                        <tr>
+                            <td>{{__('Issue Date')}}:</td>
+                            <td class="text-right">{{Utility::dateFormat($settings,$invoice->issue_date)}}</td>
+                        </tr>
+                        <tr>
+                            <td>{{__('Due Date:')}}</td>
+                            <td class="text-right">{{Utility::dateFormat($settings,$invoice->due_date)}}</td>
+                        </tr>
+                        @if(!empty($customFields) && count($invoice->customField)>0)
+                            @foreach($customFields as $field)
+                                <tr>
+                                    <td>{{$field->name}} :</td>
+                                    <td> {{!empty($invoice->customField)?$invoice->customField[$field->id]:'-'}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        </tbody>
+                    </table>
+                </td>
+
+                <td class="text-right">
+                    <img class="invoice-logo"  src="{{$img}}"
+                         alt="">
                     <p>
                         @if($settings['company_name']){{$settings['company_name']}}@endif<br>
                         @if($settings['company_email']){{$settings['company_email']}}@endif<br>
@@ -204,44 +226,6 @@
                     </p>
                 </td>
 
-                <td>
-                    <img class="invoice-logo"
-                         src="{{$img}}"
-                         alt="" style="margin-bottom: 15px;">
-
-                    <table class="no-space">
-                        <tbody>
-                        <tr>
-                            <td>{{__('Number')}}:</td>
-                            <td class="text-right">{{Utility::invoiceNumberFormat($settings,$invoice->invoice_id)}}</td>
-                        </tr>
-                        <tr>
-                            <td>{{__('Issue Date')}}:</td style="color: {{ $color }};">
-                            <td class="text-right">{{Utility::dateFormat($settings,$invoice->issue_date)}}</td>
-                        </tr>
-
-                        <tr>
-                            <td><b>{{__('Due Date:')}}</b></td>
-                            <td class="text-right">{{Utility::dateFormat($settings,$invoice->due_date)}}</td>
-                        </tr>
-                        @if(!empty($customFields) && count($invoice->customField)>0)
-                            @foreach($customFields as $field)
-                                <tr>
-                                    <td>{{$field->name}} :</td>
-                                    <td> {{!empty($invoice->customField)?$invoice->customField[$field->id]:'-'}}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        <tr>
-                            <td colspan="2">
-                                <div class="view-qrcode">
-                                    {!! DNS2D::getBarcodeHTML(route('invoice.link.copy',\Crypt::encrypt($invoice->invoice_id)), "QRCODE",2,2) !!}
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
             </tr>
             </tbody>
         </table>
@@ -281,25 +265,25 @@
             </tbody>
         </table>
         <table class=" invoice-summary" style="margin-top: 30px;">
-            <thead style="background: {{$color}};color:{{$font_color}}">
-            <tr>
+            <thead style="background: {{ $color }};color:{{ $font_color }}">
+            <tr style="border-bottom:1px solid {{ $color }};" >
                 <th>{{__('Item')}}</th>
                 <th>{{__('Quantity')}}</th>
                 <th>{{__('Rate')}}</th>
                 <th>{{__('Discount')}}</th>
                 <th>{{__('Tax')}} (%)</th>
-                <th>{{__('Price')}} <small>{{__('after tax & discount')}}</small></th>
+                <th>{{__('Price')}} <small>after tax & discount</small></th>
             </tr>
-            </thead>
-            <tbody style="border-bottom:1px solid {{ $color }};">
-            @if(isset($invoice->itemData) && count($invoice->itemData) > 0)
+            </thead >
+            <tbody style="border-bottom:1px solid {{ $color }};" >
+                @if(isset($invoice->itemData) && count($invoice->itemData) > 0)
                 @foreach($invoice->itemData as $key => $item)
                     <tr >
                         <td>{{$item->name}}</td>
                         <td>{{$item->quantity}}</td>
                         <td>{{Utility::priceFormat($settings,$item->price)}}</td>
                         <td>{{($item->discount!=0)?Utility::priceFormat($settings,$item->discount):'-'}}</td>
-                        <td>
+                        <td >
                             @if(!empty($item->itemTax))
                                 @php
                                     $itemtax = 0;
@@ -314,14 +298,15 @@
                                 <span>-</span>
                             @endif
                         </td>
-                        <td>{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
-                    @if(!empty($item->description))
-                        <tr class="itm-description " style="border-bottom:1px solid {{ $color }};">
-                            <td colspan="6">{{$item->description}}</td>
-                        </tr>
-                        @endif
+                        <td >{{Utility::priceFormat($settings,$item->price * $item->quantity -  $item->discount + $itemtax)}}</td>
+                        @if(!empty($item->description))
+                            <tr class="border-0 itm-description">
+                                <td colspan="6" style="border-bottom:1px solid {{ $color }};">{{$item->description}}</td>
+                            </tr>
+                            @endif
                         </tr>
                         @endforeach
+
                     @else
                     @endif
             </tbody>
@@ -334,12 +319,12 @@
                 <td>{{Utility::priceFormat($settings,$invoice->totalTaxPrice) }}</td>
                 <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
             </tr>
-            <tr style="border-bottom:1px solid {{ $color }};">
+            <tr>
                 <td colspan="4"></td>
                 <td colspan="2" class="sub-total">
                     <table class="total-table">
                         <tr style="border-bottom:1px solid {{ $color }};">
-                            <td>{{__('Subtotal')}}:</td>
+                            <td >{{__('Subtotal')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getSubTotal())}}</td>
                         </tr>
                         @if($invoice->getTotalDiscount())
@@ -368,16 +353,11 @@
                             <td>{{__('Credit Note')}}:</td>
                             <td>{{Utility::priceFormat($settings,($invoice->invoiceTotalCreditNote()))}}</td>
                         </tr>
-                        <tr >
+                        <tr style="border-bottom:1px solid {{ $color }};">
                             <td>{{__('Due Amount')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
+                        </tr>
 
-                        </tr>
-                        <tr >
-                            <td>{{__('Due Amount')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
-                            
-                        </tr>
                     </table>
                 </td>
             </tr>
@@ -394,5 +374,7 @@
 @if(!isset($preview))
     @include('invoice.script');
 @endif
+
 </body>
+
 </html>

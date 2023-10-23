@@ -371,13 +371,8 @@
                         <tr >
                             <td>{{__('Due Amount')}}:</td>
                             <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
+                        </tr>
 
-                        </tr>
-                        <tr >
-                            <td>{{__('Due Amount')}}:</td>
-                            <td>{{Utility::priceFormat($settings,$invoice->getDue())}}</td>
-                            
-                        </tr>
                     </table>
                 </td>
             </tr>
